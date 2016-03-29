@@ -96,3 +96,47 @@ flying from [-87.4072265625, 38.376115424036016] and that its last known coordin
 was [-87.5830078125, 38.23818011979866]. Given this information, see if you can
 determine where we can expect this flock of birds to rest.
 ===================== */
+
+var plotFeature = function(feature){
+      feature.addTo(map);
+    };
+var removeFeature = function(feature) {
+      map.removeLayer(feature);
+    };
+
+//Exercise 1: Finding the nearest point
+var point = {"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-75.19266128540039,39.95223725519684]}};
+var against = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-73.99764060974121,40.73093368341445]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-71.06244564056396,42.35649846054638]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-80.01274108886719,40.44181942030455]}}]};
+var nearest = turf.nearest(point, against);
+var nearest_marker = L.marker([nearest.geometry.coordinates[1],nearest.geometry.coordinates[0]]);
+plotFeature(nearest_marker);
+removeFeature(nearest_marker);
+
+//Exercise 2: Finding the average point value (a form of spatial join)
+var points = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"value":10},"geometry":{"type":"Point","coordinates":[-75.20193099975586,39.953109047840236]}},{"type":"Feature","properties":{"value":20},"geometry":{"type":"Point","coordinates":[-75.19540786743163,39.947779424806214]}},{"type":"Feature","properties":{"value":30},"geometry":{"type":"Point","coordinates":[-75.18879890441895,39.95370120254379]}},{"type":"Feature","properties":{"value":90},"geometry":{"type":"Point","coordinates":[-75.17060279846191,39.95205631570857]}},{"type":"Feature","properties":{"value":100},"geometry":{"type":"Point","coordinates":[-75.15772819519043,39.95350381821224]}},{"type":"Feature","properties":{"value":110},"geometry":{"type":"Point","coordinates":[-75.16528129577637,39.94106745695668]}}]};
+var polygons = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-75.20939826965332,39.942515191991696],[-75.20939826965332,39.95889878493113],[-75.18038749694824,39.95889878493113],[-75.18038749694824,39.942515191991696],[-75.20939826965332,39.942515191991696]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-75.17532348632812,39.93678987904212],[-75.17532348632812,39.95909615369219],[-75.15232086181639,39.95909615369219],[-75.15232086181639,39.93678987904212],[-75.17532348632812,39.93678987904212]]]}}]};
+var averaged = turf.average(polygons, points, 'value', 'averageValue');
+var averaged_polygons = L.geoJson(averaged);
+plotFeature(averaged_polygons);
+removeFeature(averaged_polygons);
+
+//Exercise 3: Tagging points according to their locations
+points = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-75.20098686218262,39.95278007078964]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-75.19180297851561,39.94705561681295]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-75.18751144409178,39.952648479526374]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-75.16365051269531,39.950871972692845]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-75.17532348632812,39.9295502919]}}]};
+polygons = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"polygon_color":"#ff0000"},"geometry":{"type":"Polygon","coordinates":[[[-75.20776748657227,39.94284421840946],[-75.20776748657227,39.95758297863267],[-75.18184661865234,39.95758297863267],[-75.18184661865234,39.94284421840946],[-75.20776748657227,39.94284421840946]]]}},{"type":"Feature","properties":{"polygon_color":"#00ff00"},"geometry":{"type":"Polygon","coordinates":[[[-75.1765251159668,39.94297582853355],[-75.1765251159668,39.958109304190224],[-75.15000343322754,39.958109304190224],[-75.15000343322754,39.94297582853355],[-75.1765251159668,39.94297582853355]]]}},{"type":"Feature","properties":{"polygon_color":"#0000ff"},"geometry":{"type":"Polygon","coordinates":[[[-75.18785476684569,39.92224411411874],[-75.18785476684569,39.93718474358997],[-75.15995979309082,39.93718474358997],[-75.15995979309082,39.92224411411874],[-75.18785476684569,39.92224411411874]]]}}]};
+var tagged = turf.tag(points, polygons,'polygon_color', 'points_color');
+
+var markerStlye = function(feature){
+  return{
+    color: feature.properties.points_color,
+    fillColor: feature.properties.points_color,
+  };
+};
+var tagged_points = L.geoJson(tagged,{
+  pointToLayer: function (feature, latlng) {
+    return L.circleMarker(latlng, markerStlye(feature));
+  }
+});
+plotFeature(tagged_points);
+removeFeature(tagged_points);
+
+//Exercise 4: Calculating a destination
