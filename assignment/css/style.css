@@ -7,7 +7,7 @@ body {
 .map {
     position: absolute;
     right: 0px;
-    left: 340px;
+    left: 450px;
     height: 100%;
     top: 0;
 }
@@ -15,7 +15,7 @@ body {
 .sidebar {
     position: absolute;
     left: 0px;
-    width: 340px;
+    width: 450px;
     top: 0;
     bottom: 0;
     overflow-y: auto;
@@ -47,9 +47,14 @@ h2 {
 }
 
 .shape{
-  background-color:#EFEFEF;
+  background-color:rgba(72, 143, 116, 0.3);
   padding: 10px;
   margin-bottom: 10px;
+}
+
+.shape:hover{
+  background-color: rgba(255, 138, 22, 0.3);
+  transition: background-color 0.5s ease;
 }
 
 .shape p{
